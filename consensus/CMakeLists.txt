@@ -57,6 +57,20 @@ else()
     )
 endif()
 
+# Consensus module (Tusk BFT)
+add_library(consensus
+    include/TuskEngine.h
+    src/TuskEngine.cpp
+)
+
+target_include_directories(consensus PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(consensus PUBLIC
+    framework
+)
+
 # Add consensus library
 add_library(consensus ${CONSENSUS_SOURCES})
 

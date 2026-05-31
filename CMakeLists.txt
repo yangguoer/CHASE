@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.18)
 project(CHASE VERSION 1.0.0 LANGUAGES C CXX)
 
 # Set C++ standard
@@ -6,29 +6,17 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O3")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
 # Find required packages
-find_package(GTest REQUIRED)
-find_package(Protobuf REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system filesystem thread)
-find_package(TBB REQUIRED)
 find_package(PkgConfig REQUIRED)
-# find_package(yaml-cpp REQUIRED)
-# Use pkg-config instead
 pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 find_package(glog REQUIRED)
-
-# Find ZeroMQ
-pkg_check_modules(ZMQ REQUIRED libzmq)
-
-# Find JsonCpp - use pkg-config as fallback
-find_package(jsoncpp QUIET)
-if(NOT jsoncpp_FOUND)
-    pkg_check_modules(JSONCPP REQUIRED jsoncpp)
-endif()
+find_package(Protobuf REQUIRED)
 
 # Generate Protocol Buffers files
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/proto_gen)
@@ -58,16 +46,16 @@ if(PROTOC_EXECUTABLE AND PROTO_FILES)
 endif()
 
 # Add subdirectories
-add_subdirectory(concepts)
-add_subdirectory(framework)
 add_subdirectory(crypto)
+add_subdirectory(framework)
 add_subdirectory(storage)
 add_subdirectory(network)
-add_subdirectory(executor)
-add_subdirectory(scheduler)
-add_subdirectory(consensus)
-add_subdirectory(runtime)
 add_subdirectory(txpool)
+add_subdirectory(consensus)
+add_subdirectory(scheduler)
+add_subdirectory(executor)
+add_subdirectory(state)
+add_subdirectory(pipeline)
 
 # Main executable
 add_executable(CHASE_node 
@@ -81,15 +69,15 @@ target_link_libraries(CHASE_node
         crypto
         storage
         network
-        executor
-        scheduler
-        consensus
-        runtime
         txpool
+        consensus
+        scheduler
+        executor
+        state
+        pipeline
         glog::glog
         OpenSSL::SSL
         OpenSSL::Crypto
-        ${ZMQ_LIBRARIES}
         Boost::system
         Boost::filesystem
         Boost::thread
@@ -97,29 +85,14 @@ target_link_libraries(CHASE_node
         ${YAML_CPP_LIBRARIES}
 )
 
-# Add JsonCpp library to main executable
-if(TARGET jsoncpp_static)
-    target_link_libraries(CHASE_node PRIVATE jsoncpp_static)
-elseif(TARGET JsonCpp::JsonCpp)
-    target_link_libraries(CHASE_node PRIVATE JsonCpp::JsonCpp)
-elseif(JSONCPP_LIBRARIES)
-    target_link_libraries(CHASE_node PRIVATE ${JSONCPP_LIBRARIES})
-    target_include_directories(CHASE_node PRIVATE ${JSONCPP_INCLUDE_DIRS})
-endif()
-
 # Include directories
 target_include_directories(CHASE_node PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/concepts
-    ${CMAKE_CURRENT_SOURCE_DIR}/CHASE-framework
     ${CMAKE_CURRENT_BINARY_DIR}/proto_gen
 )
 
-# Set global include directories for all subdirectories
+# Global include directories
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/concepts
-    ${CMAKE_CURRENT_SOURCE_DIR}/utilities
-    ${CMAKE_CURRENT_SOURCE_DIR}/CHASE-framework
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/proto_gen
 )

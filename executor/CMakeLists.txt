@@ -87,3 +87,18 @@ install(DIRECTORY
     DESTINATION include/parachain/executor
     FILES_MATCHING PATTERN "*.h"
 )
+
+# Executor module
+add_library(executor
+    include/ExecutorInterface.h
+)
+
+target_include_directories(executor PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(executor PUBLIC
+    framework
+    scheduler
+    state
+)

@@ -17,7 +17,18 @@ file(GLOB_RECURSE NETWORK_SOURCES
 )
 
 # Create the network library
-add_library(network ${NETWORK_SOURCES})
+add_library(network
+    include/P2PService.h
+    src/P2PService.cpp
+)
+
+target_include_directories(network PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(network PUBLIC
+    framework
+)
 
 # Link libraries
 target_link_libraries(network

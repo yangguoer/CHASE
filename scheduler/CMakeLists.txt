@@ -64,3 +64,23 @@ install(DIRECTORY
     DESTINATION include/parachain/scheduler
     FILES_MATCHING PATTERN "*.h"
 )
+
+# Scheduler module (CDS core)
+add_library(scheduler
+    include/KDG.h
+    src/KDG.cpp
+    include/DPP.h
+    src/DPP.cpp
+    include/SchedulePlan.h
+    include/CDS.h
+    src/CDS.cpp
+)
+
+target_include_directories(scheduler PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(scheduler PUBLIC
+    framework
+    crypto
+)

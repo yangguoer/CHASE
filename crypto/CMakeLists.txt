@@ -84,3 +84,18 @@ install(DIRECTORY
     DESTINATION include/parachain/crypto
     FILES_MATCHING PATTERN "*.h"
 )
+
+# Crypto module
+add_library(crypto
+    include/Crypto.h
+    src/Crypto.cpp
+)
+
+target_include_directories(crypto PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(crypto PUBLIC
+    OpenSSL::SSL
+    OpenSSL::Crypto
+)

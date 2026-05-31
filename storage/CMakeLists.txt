@@ -87,3 +87,18 @@ install(DIRECTORY
     DESTINATION include/parachain/storage
     FILES_MATCHING PATTERN "*.h"
 )
+
+# Storage module (RocksDB wrapper)
+add_library(storage
+    include/StorageInterface.h
+    src/RocksDBStorage.cpp
+)
+
+target_include_directories(storage PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(storage PUBLIC
+    framework
+    crypto
+)

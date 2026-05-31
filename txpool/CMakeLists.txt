@@ -53,3 +53,18 @@ target_include_directories(txpool
         ${CMAKE_SOURCE_DIR}/crypto/include
         ${CMAKE_SOURCE_DIR}/framework
 )
+
+# TxPool module
+add_library(txpool
+    include/TxPool.h
+    src/TxPool.cpp
+)
+
+target_include_directories(txpool PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(txpool PUBLIC
+    framework
+    crypto
+)
